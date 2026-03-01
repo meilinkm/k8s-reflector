@@ -39,7 +39,7 @@ dependencies:
     version: 10.0.14 # version of the helm chart for reflector used
     repository: https://emberstack.github.io/helm-charts
 ```
-Run the dependendency update which will download the kubed helm chart in tgz format and place it in the charts sub-folder as a child helm chart. It will also create the Chart.lock file.
+Run the dependendency update which will download the reflector helm chart in tgz format and place it in the charts sub-folder as a child helm chart. It will also create the Chart.lock file.
 Alternatively, use the chart-update.sh script to update the helm chart automatically.
 ```Bash
 cd helm
@@ -70,4 +70,24 @@ metadata:
     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
     reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
 ```
+For example, for the meilinknet TLS secret that I like to have reflected from the reflector namespace to all other namespaces (script /usr/local/bin/update-tls-secret-kubernetes.sh in the root cron on enemigo will set these annotations):
+```Bash
+# kubectl -n reflector get secret meilinknet -o yaml | grep -v -E "crt|key"
+apiVersion: v1
+data:
+kind: Secret
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+  creationTimestamp: "2026-03-01T20:34:46Z"
+  name: meilinknet
+  namespace: reflector
+  resourceVersion: "10420450"
+  uid: 4a0aa1b8-1a59-4e60-bce4-c3edc53b3033
+type: kubernetes.io/tls
+```
+Once deployed, you can view the logs of the reflector pod and see that it reflects this secret to all other available namespaces.
 
+Also, when a new namespace is created, reflector will ensure that the TLS secret is created automatically and immediately in the new namespace.
