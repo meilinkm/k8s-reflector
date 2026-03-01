@@ -1,0 +1,10 @@
+apiVersion: v2
+name: reflector
+description: A Helm chart for reflector on Kubernetes
+type: application
+version: 0.1.0 # version of the parent helm chart
+appVersion: "10.0.14" # version of reflector being deployed
+dependencies:
+  - name: reflector
+    version: 10.0.14 # version of the helm chart for reflector used
+    repository: https://emberstack.github.io/helm-charts
