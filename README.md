@@ -1,6 +1,10 @@
 # reflector
 I use reflector to propagate the TLS secret 'meilinknet' from the 'tls' namespace to all other namespaces. This way, the TLS secret is always available in all namespaces, even when a new application with a new ingress is deployed into the cluster. The 'meilink.net' TLS secret is initially written by a script that runs on enemigo in the root crontab every hour: /usr/local/bin/update-tls-secret-kubernetes.sh. If the TLS secret is missing in a namespace, refelector will copy it from the tls namespace into that namespace. Also, when the TLS secret is updated, it will also get copied to all other namespaces.
 
+Github location for kubernetes-reflector: https://github.com/emberstack/kubernetes-reflector
+
+How to use it: https://www.kubeblogs.com/how-to-use-kubernetes-reflector-simple-secret-management-across-namespaces/
+
 You can pull the chart from its official repo:
 ```bash
 # get repo
@@ -25,16 +29,15 @@ rm -rf helm/templates/*
 Edit helm/Chart.yaml:
 ```Bash
 apiVersion: v2
-name: kubed
-description: A Helm chart for kubed on Kubernetes
+name: reflector
+description: A Helm chart for reflector on Kubernetes
 type: application
 version: 0.1.0 # version of the parent helm chart
-appVersion: "v0.13.2" # version of kubed being deployed
+appVersion: "10.0.14" # version of reflector being deployed
 dependencies:
-  - name: kubed
-    version: 0.13.2 # version of the helm chart for kubed used
-    repository: https://charts.appscode.com/stable/
-
+  - name: reflector
+    version: 10.0.14 # version of the helm chart for reflector used
+    repository: https://emberstack.github.io/helm-charts
 ```
 Run the dependendency update which will download the kubed helm chart in tgz format and place it in the charts sub-folder as a child helm chart. It will also create the Chart.lock file.
 Alternatively, use the chart-update.sh script to update the helm chart automatically.
@@ -49,5 +52,22 @@ Next, update the values.yaml file in the parent helm chart. It is best practice 
 
 Test deploy the helm chart - from the helm folder:
 ```Bash
-helm -n kubed install kubed . -f values.yaml
+helm -n reflector install reflector . -f values.yaml --create-namespace
 ```
+To uninstall:
+```Bash
+helm -n reflector uninstall reflector
+kubectl delete ns reflector
+```
+To have Reflector sync a secret, you need to add some annotations, e.g.:
+```Bash
+apiVersion: v1
+kind: Secret
+metadata:
+  name: docker-registry-secret
+  namespace: default
+  annotations:
+    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+```
+
