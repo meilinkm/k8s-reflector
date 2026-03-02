@@ -39,7 +39,7 @@ dependencies:
     version: 10.0.14 # version of the helm chart for reflector used
     repository: https://emberstack.github.io/helm-charts
 ```
-Run the dependendency update which will download the reflector helm chart in tgz format and place it in the charts sub-folder as a child helm chart. It will also create the Chart.lock file.
+Run the dependency update which will download the reflector helm chart in tgz format and place it in the charts sub-folder as a child helm chart. It will also create the Chart.lock file.
 Alternatively, use the chart-update.sh script to update the helm chart automatically.
 ```Bash
 cd helm
@@ -48,7 +48,7 @@ cd charts
 tar xvf *tgz
 rm -f *tgz
 ```
-Next, update the values.yaml file in the parent helm chart. It is best practice to only have those values in this values.yaml file that overrride the values in values.yaml in the child helm chart.
+Next, update the values.yaml file in the parent helm chart. It is best practice to only have those values in this values.yaml file that override the values in values.yaml in the child helm chart.
 
 Test deploy the helm chart - from the helm folder:
 ```Bash
