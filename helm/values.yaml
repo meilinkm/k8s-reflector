@@ -6,3 +6,14 @@ reflector:
     requests:
       cpu: 100m
       memory: 256Mi
+
+  startupProbe:
+    httpGet:
+      path: /health/ready
+      port: http
+    timeoutSeconds: 10
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    # increase from 5 to 20 to allow more time
+    failureThreshold: 20
+
